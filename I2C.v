@@ -13,13 +13,13 @@ parameter ADDR  = 2;
 parameter CBYTE = 3;
 parameter DATA  = 4;
 parameter STOP  = 5;
-parameter T_WAIT=10;        //=wait_time*clk_frequency  =5us*12MHz 4
+parameter T_WAIT= 6;        //=wait_time*clk_frequency  =5us*12MHz 4
 
 reg DCn_r=0;
 reg [2:0]state=0;
 reg [3:0]i=0;
 reg [3:0]step=0;
-reg [12:0]delay=0;
+reg [12:0]delay=1;
 reg [7:0]slave= 8'b01111000;   //slave address
 reg [7:0]cbyte= 8'b10000000;   //Control byte for command
 reg [7:0]dbyte= 8'b01000000;   //Control byte for data
@@ -28,7 +28,7 @@ reg [7:0]data=  0;
 always @(posedge clk)
 begin
 
-if(delay != 0)                 //if delay is not zero, wait for clock cycles specified by delay
+if(delay != 1)                 //if delay is not zero, wait for clock cycles specified by delay
 begin
  delay<= delay-1;
 end else begin                 //if delay is zero, proceed
@@ -55,13 +55,15 @@ end else begin                 //if delay is zero, proceed
  	  end
  	1:begin
  	    scl<=0;            //SCL goes low
- 	    delay<=T_WAIT;     //Wait for T_WAIT cycles
- 	    step<=step+1;
- 	  end
- 	2:begin
- 	    state<=ADDR;       //Start sending address
+ 	    // delay<=T_WAIT;     //Wait for T_WAIT cycles
+ 	    //step<=step+1;
+	    state<=ADDR;       //Start sending address
  	    step<=0;
  	  end
+ 	// 2:begin
+ 	//     state<=ADDR;       //Start sending address
+ 	//     step<=0;
+ 	//   end
  	endcase
        end
 
@@ -83,7 +85,7 @@ end else begin                 //if delay is zero, proceed
  	  end
  	1:begin
  	      sda<=slave[7-i];  //transmit address bit
- 	      delay<=T_WAIT;
+ 	      delay<=T_WAIT-1;
  	      i<=i+1;
  	      step<=2;
  	  end
@@ -136,7 +138,7 @@ end else begin                 //if delay is zero, proceed
  	      end else begin
  	      	sda<=cbyte[7-i];
  	      end
- 	      delay<=T_WAIT;
+ 	      delay<=T_WAIT-1;
  	      i<=i+1;
  	      step<=2;
  	  end
@@ -185,7 +187,7 @@ end else begin                 //if delay is zero, proceed
  	  end
  	1:begin
  	      sda<=data[7-i];
- 	      delay<=T_WAIT;
+ 	      delay<=T_WAIT-1;
  	      i<=i+1;
  	      step<=2;
  	  end
@@ -237,3 +239,4 @@ end
 
 
 endmodule
+
